@@ -18,7 +18,7 @@ def handler(signum,frame):
 
 	raise SocketTimeOut(frame)
 
-def detectDigiDevice(timeout):
+def detectDigiDevice(timeout=1):
 	"""This sends a UDP broadcast packet out over all available
 	interfaces with an IPv4 broadcast address. It then detects
 	and parses a response from Digi devices such as Connect ME
@@ -40,38 +40,44 @@ def detectDigiDevice(timeout):
 				outsock.sendto(digiDiscoverPacket, (i['broadcast'], broadcastPort))
 		except:
 			True	#for lack of a better way to not care about the exception and just continue
+
+	responses = []
+
 	#wait for a response
 	try:
 		#setup the timeout
 		signal.signal(signal.SIGALRM, handler)
 		signal.alarm(timeout)
 
-		#wait for data
-		data, addr = outsock.recvfrom(2048)
+		while True:
+			#wait for data
+			data, addr = outsock.recvfrom(2048)
 		
-		#disable timeout
-		signal.alarm(0);
+			#process data
+			if not data.startswith('DIGI'):
+				return None
+			mac = "%02X:%02X:%02X:%02X:%02X:%02X" % (ord(data[10]), ord(data[11]), ord(data[12]), ord(data[13]), ord(data[14]), ord(data[15]))
+			len = ord(data[35])
+			desc = data[36:(36+len)]+" "
+			len2 = ord(data[36+len+7])
+			desc += data[36+len+8: 36+len+8+len2]
 
-		#process data
-		if not data.startswith('DIGI'):
-			return None
-		mac = "%02X:%02X:%02X:%02X:%02X:%02X" % (ord(data[10]), ord(data[11]), ord(data[12]), ord(data[13]), ord(data[14]), ord(data[15]))
-		len = ord(data[35])
-		desc = data[36:(36+len)]+" "
-		len2 = ord(data[36+len+7])
-		desc += data[36+len+8: 36+len+8+len2]
-		return addr[0], mac, desc
-	except:
-		raise
+			responses.append((addr[0], mac, desc))
+
+	except SocketTimeOut:
+		if responses:
+			return responses
+		else:
+			raise
 
 if __name__ == '__main__':
 	try:
-		ip, mac, desc = detectDigiDevice(1);
-		if (ip == None):
-			print "Unable to find a Digi device"
-			exit()
-		else:
-			print "Found '%s' with MAC %s @ %s" % (desc, mac, ip)
+		for ip, mac, desc in detectDigiDevice():
+			if (ip == None):
+				print "Unable to find a Digi device"
+				exit()
+			else:
+				print "Found '%s' with MAC %s @ %s" % (desc, mac, ip)
 	except SocketTimeOut:
 		print "Timed out waiting for a response from a Digi device"
 	except:
