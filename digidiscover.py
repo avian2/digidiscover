@@ -1,4 +1,6 @@
-# digiDiscover.py
+#!/usr/bin/env python
+
+# digidiscover.py
 # Author: John Kelley  <FirstName> (at) <LastName> dot ca
 # 10/24/08
 
