@@ -4,4 +4,7 @@ a IP network and prints out their MAC and IP addresses.
 Originally written by John Kelley.
 (http://kelley.ca/wordpress/2008/10/24/digi-connect-me-discovery/)
 
-Slight modifications by Tomaz Solc (tomaz.solc@tablix.org).
+Modifications by:
+
+ - Tomaz Solc (tomaz.solc@tablix.org)
+ - Andre Miras (<FirstName> (dot) <LastName> (at) gmail (dot) com)
