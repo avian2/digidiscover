@@ -41,7 +41,7 @@ def detectDigiDevice(timeout=1):
 			for i in ifaddresses(ifaceName)[AF_INET]:
 				outsock.sendto(digiDiscoverPacket, (i['broadcast'], broadcastPort))
 		except:
-			True	#for lack of a better way to not care about the exception and just continue
+			pass
 
 	responses = []
 
