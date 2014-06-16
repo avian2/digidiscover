@@ -75,7 +75,7 @@ def detectDigiDevice(timeout=1):
 if __name__ == '__main__':
 	try:
 		for ip, mac, desc in detectDigiDevice():
-			if (ip == None):
+			if ip is None:
 				print "Unable to find a Digi device"
 				exit()
 			else:
